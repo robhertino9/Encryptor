@@ -21,20 +21,20 @@ class App:
         self.notebook.add(self.encryption_tab, text="Encrypt")
 
         # Create the key label and buttons
-        self.key_label = Label(self.encryption_tab, text="Keys")
-        self.key_label.pack()
-        self.key_button = Button(self.encryption_tab, text="Generate Key", command=self.generate_key)
-        self.key_button.pack()
-        self.key_export_button = Button(self.encryption_tab, text="Export Key", command=self.export_key)
-        self.key_export_button.pack()
+        self.key_label = Label(self.encryption_tab, text="Keys", font=("Helvetica", 16))
+        self.key_label.pack(pady=10)
+        self.key_button = Button(self.encryption_tab, text="Generate Encryption Key", command=self.generate_key, font=("Helvetica", 9))
+        self.key_button.pack(pady=5)
+        self.key_export_button = Button(self.encryption_tab, text="Export Key", command=self.export_key, font=("Helvetica", 10))
+        self.key_export_button.pack(pady=5)
 
         # Create the file selection label and buttons
-        self.file_label = Label(self.encryption_tab, text="File:")
-        self.file_label.pack()
-        self.file_select_button = Button(self.encryption_tab, text="Select File", command=self.select_file)
-        self.file_select_button.pack()
-        self.encrypt_button = Button(self.encryption_tab, text="Encrypt File", command=self.encrypt_file)
-        self.encrypt_button.pack()
+        self.file_label = Label(self.encryption_tab, text="File", font=("Helvetica", 16))
+        self.file_label.pack(pady=10)
+        self.file_select_button = Button(self.encryption_tab, text="Select File", command=self.select_file, font=("Helvetica", 10))
+        self.file_select_button.pack(pady=5)
+        self.encrypt_button = Button(self.encryption_tab, text="Encrypt File", command=self.encrypt_file, font=("Helvetica", 12))
+        self.encrypt_button.pack(pady=5)
         
         # Initialize the encryption key variable
         self.key = None
@@ -47,18 +47,18 @@ class App:
         self.notebook.add(self.decryption_tab, text= "Decrypt")
         
         #Decryption key label and buttons
-        self.decrypt_key_label = Label(self.decryption_tab, text="Decryption Key")
-        self.decrypt_key_label.pack()
-        self.decrypt_key_button = Button(self.decryption_tab, text="Import Key", command=self.import_key)
-        self.decrypt_key_button.pack()
+        self.decrypt_key_label = Label(self.decryption_tab, text="Decryption Key", font=("Helvetica", 16))
+        self.decrypt_key_label.pack(pady=10)
+        self.decrypt_key_button = Button(self.decryption_tab, text="Import Key", command=self.import_key, font=("Helvetica", 10))
+        self.decrypt_key_button.pack(pady=5)
         
         #Decryption file selection label and buttons
-        self.decrypt_file_label = Label(self.decryption_tab, text="Encrypted File:")
-        self.decrypt_file_label.pack()
-        self.decrypt_file_select_button = Button(self.decryption_tab, text="Select Encrypted File", command=self.select_file)
-        self.decrypt_file_select_button.pack()
-        self.decrypt_button = Button(self.decryption_tab, text="Decrypt File", command=self.decrypt_file)
-        self.decrypt_button.pack()
+        self.decrypt_file_label = Label(self.decryption_tab, text="Encrypted File", font=("Helvetica", 16))
+        self.decrypt_file_label.pack(pady=10)
+        self.decrypt_file_select_button = Button(self.decryption_tab, text="Select Encrypted File", command=self.select_file, font=("Helvetica", 10))
+        self.decrypt_file_select_button.pack(pady=5)
+        self.decrypt_button = Button(self.decryption_tab, text="Decrypt File", command=self.decrypt_file, font=("Helvetica", 12))
+        self.decrypt_button.pack(pady=5)
         
         # Initialize the decryption key variable
         self.key = None
@@ -151,14 +151,22 @@ class App:
             except:
                 messagebox.showerror("Error", "Incorrect Decryption key, please try again!")
                 return
-            with open(decrypted_filename, "wb") as f:
-               f.write(decrypted_text)
-            messagebox.showinfo("Success", "File has been decrypted!")
+            #Ask user where they want the decrypted file to be saved
+            filetypes = [('All files', '*.*')]
+            initial_dir = os.path.expanduser('~/Documents')
+            save_file_path = filedialog.asksaveasfilename(filetypes=filetypes, initialdir=initial_dir, initialfile=decrypted_filename)
+            if save_file_path:
+                with open(decrypted_filename, "wb") as f:
+                 f.write(decrypted_text)
+                messagebox.showinfo("Success", "File has been decrypted and saved!")
+            else:
+                 messagebox.showerror("Error", "Please choose a valid file path!")
+            
         
 #Root window
 root = Tk()
 
 #Set size of window
-root.geometry("800x600")
+root.geometry("400x400")
 app = App(root)
 root.mainloop()
