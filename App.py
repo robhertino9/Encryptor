@@ -14,13 +14,25 @@ class App:
         
         #Notebook widget for tabs
         self.notebook = ttk.Notebook(master)
-        self.notebook.pack(fill=BOTH, expand=True)
+        self.notebook.pack(fill="both", expand=True)
         
-        #Create encryption tab
+        #Home Tab
+        self.home_tab = ttk.Frame(self.notebook)
+        self.notebook.add(self.home_tab, text="Home")
+        
+        #Encrypt and Decrypt buttons at home tab
+        self.home_label = Label(self.home_tab, text="Home", font=("Helvetica", 16))
+        self.home_label.pack(pady=10)
+        self.encrypt_button = Button(self.home_tab, text="Encrypt", font=("Helvetica", 10), command=lambda: self.notebook.select(self.encryption_tab))
+        self.encrypt_button.pack(pady=10)
+        self.decrypt_button = Button(self.home_tab, text="Decrypt", font=("Helvetica", 10), command=lambda: self.notebook.select(self.decryption_tab))
+        self.decrypt_button.pack(pady=10)
+        
+        #Encryption tab
         self.encryption_tab = ttk.Frame(self.notebook)
         self.notebook.add(self.encryption_tab, text="Encrypt")
 
-        # Create the key label and buttons
+        #Key label and buttons
         self.key_label = Label(self.encryption_tab, text="Keys", font=("Helvetica", 16))
         self.key_label.pack(pady=10)
         self.key_button = Button(self.encryption_tab, text="Generate Encryption Key", command=self.generate_key, font=("Helvetica", 9))
@@ -28,7 +40,7 @@ class App:
         self.key_export_button = Button(self.encryption_tab, text="Export Key", command=self.export_key, font=("Helvetica", 10))
         self.key_export_button.pack(pady=5)
 
-        # Create the file selection label and buttons
+        #File selection label and buttons
         self.file_label = Label(self.encryption_tab, text="File", font=("Helvetica", 16))
         self.file_label.pack(pady=10)
         self.file_select_button = Button(self.encryption_tab, text="Select File", command=self.select_file, font=("Helvetica", 10))
@@ -36,10 +48,8 @@ class App:
         self.encrypt_button = Button(self.encryption_tab, text="Encrypt File", command=self.encrypt_file, font=("Helvetica", 12))
         self.encrypt_button.pack(pady=5)
         
-        # Initialize the encryption key variable
+        # Initialization of the encryption key/file variable
         self.key = None
-
-        # Initialize the encryption file variable
         self.filename = None
         
         #Decryption tab
@@ -60,10 +70,8 @@ class App:
         self.decrypt_button = Button(self.decryption_tab, text="Decrypt File", command=self.decrypt_file, font=("Helvetica", 12))
         self.decrypt_button.pack(pady=5)
         
-        # Initialize the decryption key variable
+        # Initialization of the decryption key/file variable
         self.key = None
-
-        # Initialize the decryption file variable
         self.filename = None
 
     def generate_key(self):
@@ -108,25 +116,30 @@ class App:
 
     def select_file(self):
         # Show a file selection dialog
-        self.filename = filedialog.askopenfilename()
+        self.filenames = filedialog.askopenfilenames()
     
     def encrypt_file(self):
         #Error Handling
         if self.key is None:
             messagebox.showerror("Error", "Please generate a key.")
-        elif self.filename is None:
-            messagebox.showerror("Error", "Please select a file.")
-        elif not os.path.isfile(self.filename):
-            messagebox.showerror("Error", "Selected file does not exist.")
-        elif self.filename.endswith(".encrypted"):
-            messagebox.showerror("Error", "Selected file is already encrypted!")
-        else:
+            return
+        if not hasattr(self, 'filenames') or not self.filenames:
+            messagebox.showerror("Error", "Please one or more files.")
+            return
+        cipher_suite = Fernet(self.key)
+        
+        for filename in self.filenames:
+            if not os.path.isfile(filename):
+                messagebox.showerror("Error", "Selected file does not exist.")
+                continue
+            elif filename.endswith(".encrypted"):
+                messagebox.showerror("Error", "Selected file is already encrypted!")
+                continue
             # Encrypt the file using the key
-            cipher_suite = Fernet(self.key)
-            with open(self.filename, "rb") as f:
+            with open(filename, "rb") as f:
                 plaintext = f.read()
             encrypted_text = cipher_suite.encrypt(plaintext)
-            with open(self.filename + ".encrypted", "wb") as f:
+            with open(filename + ".encrypted", "wb") as f:
                 f.write(encrypted_text)
             messagebox.showinfo("Success", "The file has been encrypted.")
 
@@ -134,18 +147,22 @@ class App:
         #Error Handling
         if self.key is None:
             messagebox.showerror("Error", "Please generate a key.")
-        elif self.filename is None:
-            messagebox.showerror("Error", "Please select a file.")
-        elif not os.path.isfile(self.filename):
-            messagebox.showerror("Error", "Selected file does not exist")
-        elif not self.filename.endswith(".encrypted"):
-            messagebox.showerror("Error", "Selected file is not encrypted")
+        if not hasattr(self, 'filenames') or not self.filenames:
+            messagebox.showerror("Error", "Please one or more files.")
         else:
-            # Decrypt the file using the key
             cipher_suite = Fernet(self.key)
-            with open(self.filename, "rb") as f:
+        for filename in self.filenames:
+            if not os.path.isfile(filename):
+                messagebox.showerror("Error", "Selected file does not exist")
+                continue
+            elif not filename.endswith(".encrypted"):
+                messagebox.showerror("Error", "Selected file is not encrypted")
+                continue
+            
+            # Decrypt the file using the key
+            with open(filename, "rb") as f:
                 encrypted_text = f.read()
-            decrypted_filename =  datetime.now().strftime("%Y%m%d_") + os.path.basename(os.path.splitext(self.filename)[0])
+            decrypted_filename =  datetime.now().strftime("%Y%m%d_") + os.path.basename(os.path.splitext(filename)[0])
             try:
                 decrypted_text = cipher_suite.decrypt(encrypted_text)
             except:
@@ -156,7 +173,7 @@ class App:
             initial_dir = os.path.expanduser('~/Documents')
             save_file_path = filedialog.asksaveasfilename(filetypes=filetypes, initialdir=initial_dir, initialfile=decrypted_filename)
             if save_file_path:
-                with open(decrypted_filename, "wb") as f:
+                with open(save_file_path, "wb") as f:
                  f.write(decrypted_text)
                 messagebox.showinfo("Success", "File has been decrypted and saved!")
             else:
