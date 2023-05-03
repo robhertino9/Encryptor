@@ -19,6 +19,7 @@ class App:
         #Home Tab
         self.home_tab = ttk.Frame(self.notebook)
         self.notebook.add(self.home_tab, text="Home")
+        self.home_label = Label(self.home_tab, text= "Welcome safe encryption", font= ("Helvetica", 16))
         
         #Encrypt and Decrypt buttons at home tab
         self.home_label = Label(self.home_tab, text="Home", font=("Helvetica", 16))
@@ -73,7 +74,47 @@ class App:
         # Initialization of the decryption key/file variable
         self.key = None
         self.filename = None
-
+        
+        #Help Tab
+        self.help_tab = ttk.Frame(self.notebook)
+        self.notebook.add(self.help_tab, text= "Help")
+        
+        #Help Menu
+        self.help_label = Label(self.help_tab, text= "Help", font= ("Helvetica", 16))
+        self.help_label.pack(pady=10)
+        self.help_var = StringVar()
+        self.help_var.set("QnA")
+        self.help_dropdown = OptionMenu(self.help_tab, self.help_var, "What can I encrypt?", "I lost my encryption key", "Can I send encrypted files to people?",
+                                        "Can I create my own encryption key","What is an encryption key?", "Is there a limit on the file size?", "How do I know if a file in encrypted?",
+                                        command=self.update_help_answer)
+        self.help_dropdown.pack(pady=10)
+        
+        #Widgets for help answers
+        self.help_answer = Text(self.help_tab, width=60, height=10, borderwidth=2, relief="groove", font=("Helvetica", 12), padx=5, pady=5)
+        self.help_answer.pack(pady=10)
+        
+    def update_help_answer(self, selection):
+        self.help_answer.delete("1.0", END)
+        
+        if selection == "What can I encrypt?":
+            answer = "You can encrypt any type of file, including text documents, images, videos, and more."
+        elif selection == "I lost my encryption key":
+            answer = "Unfortunately, if you lose your encryption key, there is no way to recover it. Make sure to export your encryption key when you are encrypting any file!"
+        elif selection == "Can I send encrypted files to people?":
+            answer = "Yes, you can send encrypted files to other people as long as they have the decryption key. Make sure to send the key securely to ensure the security of your files."
+        elif selection == "Can I create my own encryption key":
+            answer = "Yes, you can create your own encryption key using the 'Generate Encryption Key' button on the Encryption tab."
+        elif selection == "What is an encryption key?":
+            answer = "An encryption key is a sequence of characters used to encrypt and decrypt files. It is important to keep your key secure and not share it with anyone else."
+        elif selection == "Is there a limit on the file size?":
+            answer = "There is no limit on the size of files you can encrypt or decrypt, but larger files may take longer to process."
+        elif selection == "How do I know if a file in encrypted?":
+            answer = "If you try to open an encrypted file without the key, it will appear as gibberish."
+        else:
+            answer = ""
+        
+        self.help_answer.insert(END, answer)
+        
     def generate_key(self):
         # Generate a random key for encryption
         self.key = Fernet.generate_key()
