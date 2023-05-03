@@ -117,8 +117,10 @@ class App:
     def select_file(self):
         # Show a file selection dialog
         self.filenames = filedialog.askopenfilenames()
+        
     
     def encrypt_file(self):
+        ENCRYPTED_FILE_SIGNATURE = b"ENCRYPTED:" 
         #Error Handling
         if self.key is None:
             messagebox.showerror("Error", "Please generate a key.")
@@ -132,18 +134,22 @@ class App:
             if not os.path.isfile(filename):
                 messagebox.showerror("Error", "Selected file does not exist.")
                 continue
-            elif filename.endswith(".encrypted"):
+            elif filename.startswith(ENCRYPTED_FILE_SIGNATURE.decode()):
                 messagebox.showerror("Error", "Selected file is already encrypted!")
                 continue
             # Encrypt the file using the key
             with open(filename, "rb") as f:
                 plaintext = f.read()
             encrypted_text = cipher_suite.encrypt(plaintext)
-            with open(filename + ".encrypted", "wb") as f:
+            encrypted_text = ENCRYPTED_FILE_SIGNATURE + encrypted_text
+            with open(filename, "wb") as f:
                 f.write(encrypted_text)
+                f.flush()
+                os.fsync(f.fileno())
             messagebox.showinfo("Success", "The file has been encrypted.")
 
     def decrypt_file(self):
+        ENCRYPTED_FILE_SIGNATURE = b"ENCRYPTED:" 
         #Error Handling
         if self.key is None:
             messagebox.showerror("Error", "Please generate a key.")
@@ -155,29 +161,24 @@ class App:
             if not os.path.isfile(filename):
                 messagebox.showerror("Error", "Selected file does not exist")
                 continue
-            elif not filename.endswith(".encrypted"):
-                messagebox.showerror("Error", "Selected file is not encrypted")
-                continue
+            with open(filename, "rb") as f:
+                signature = f.read(len(ENCRYPTED_FILE_SIGNATURE))
+                if signature != ENCRYPTED_FILE_SIGNATURE:
+                    messagebox.showerror("Error", "Selected file is not encrypted")
+                    continue
             
             # Decrypt the file using the key
-            with open(filename, "rb") as f:
                 encrypted_text = f.read()
-            decrypted_filename =  datetime.now().strftime("%Y%m%d_") + os.path.basename(os.path.splitext(filename)[0])
             try:
                 decrypted_text = cipher_suite.decrypt(encrypted_text)
             except:
                 messagebox.showerror("Error", "Incorrect Decryption key, please try again!")
                 return
-            #Ask user where they want the decrypted file to be saved
-            filetypes = [('All files', '*.*')]
-            initial_dir = os.path.expanduser('~/Documents')
-            save_file_path = filedialog.asksaveasfilename(filetypes=filetypes, initialdir=initial_dir, initialfile=decrypted_filename)
-            if save_file_path:
-                with open(save_file_path, "wb") as f:
-                 f.write(decrypted_text)
+            with open(filename, "wb") as f:
+                f.write(decrypted_text)
+                f.flush()
+                os.fsync(f.fileno())
                 messagebox.showinfo("Success", "File has been decrypted and saved!")
-            else:
-                 messagebox.showerror("Error", "Please choose a valid file path!")
             
         
 #Root window
