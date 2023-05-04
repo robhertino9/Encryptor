@@ -30,6 +30,23 @@ class App:
         img3 = img3.resize((50, 50))
         self.help_photo = ImageTk.PhotoImage(img3)
         
+        img4 = Image.open("key.png",)
+        img4 = img4.resize((50, 50))
+        self.key_photo = ImageTk.PhotoImage(img4)
+        
+        img5 = Image.open("export.png",)
+        img5 = img5.resize((50, 50))
+        self.export_photo = ImageTk.PhotoImage(img5)
+        
+        img6 = Image.open("select.png",)
+        img6 = img6.resize((50, 50))
+        self.select_photo = ImageTk.PhotoImage(img6)
+        
+        img7 = Image.open("import.png",)
+        img7 = img7.resize((50, 50))
+        self.import_photo = ImageTk.PhotoImage(img7)
+        
+        
         #Home Tab
         self.home_tab = ttk.Frame(self.notebook)
         self.notebook.add(self.home_tab, text="Home")
@@ -40,11 +57,11 @@ class App:
         self.home_label = Label(self.home_tab, text="Home", font=("Helvetica", 16))
         self.home_label.pack(pady=10)
         self.encrypt_button = Button(self.home_tab, text="Encrypt", font=("Helvetica", 10, "bold"), image=self.encrypt_photo, compound="top", command=lambda: self.notebook.select(self.encryption_tab))
-        self.encrypt_button.pack(pady=10, padx=35, side="left", anchor="n")
+        self.encrypt_button.pack(pady=10, padx=50, side="left", anchor="n")
         self.decrypt_button = Button(self.home_tab, text="Decrypt", font=("Helvetica", 10, "bold"), image=self.decryption_photo, compound="top", command=lambda: self.notebook.select(self.decryption_tab))
-        self.decrypt_button.pack(pady=10, padx=35, side="left", anchor="n")
+        self.decrypt_button.pack(pady=10, padx=50, side="left", anchor="n")
         self.help_button = Button(self.home_tab, text="Help me", font=("Helvetica", 10, "bold"), image=self.help_photo, compound="top", command=lambda: self.notebook.select(self.help_tab))
-        self.help_button.pack(pady=10, padx=35, side="left", anchor="n")
+        self.help_button.pack(pady=10, padx=50, side="left", anchor="n")
         
         #Encryption tab
         self.encryption_tab = ttk.Frame(self.notebook)
@@ -53,17 +70,17 @@ class App:
         #Key label and buttons
         self.key_label = Label(self.encryption_tab, text="Keys", font=("Helvetica", 16))
         self.key_label.pack(pady=10)
-        self.key_button = Button(self.encryption_tab, text="Generate Encryption Key", command=self.generate_key, font=("Helvetica", 9))
+        self.key_button = Button(self.encryption_tab, text="Generate Encryption Key", command=self.generate_key, font=("Helvetica", 10, "bold"), image=self.key_photo, compound="top")
         self.key_button.pack(pady=5)
-        self.key_export_button = Button(self.encryption_tab, text="Export Key", command=self.export_key, font=("Helvetica", 10))
+        self.key_export_button = Button(self.encryption_tab, text="Export Key", command=self.export_key, font=("Helvetica", 10, "bold"), width=160, image=self.export_photo, compound="top")
         self.key_export_button.pack(pady=5)
 
         #File selection label and buttons
         self.file_label = Label(self.encryption_tab, text="File", font=("Helvetica", 16))
         self.file_label.pack(pady=10)
-        self.file_select_button = Button(self.encryption_tab, text="Select File", command=self.select_file, font=("Helvetica", 10))
+        self.file_select_button = Button(self.encryption_tab, text="Select File", command=self.select_file, font=("Helvetica", 10, "bold"), width=160, image=self.select_photo, compound="top")
         self.file_select_button.pack(pady=5)
-        self.encrypt_button = Button(self.encryption_tab, text="Encrypt File", command=self.encrypt_file, font=("Helvetica", 12))
+        self.encrypt_button = Button(self.encryption_tab, text="Encrypt File", command=self.encrypt_file, font=("Helvetica", 12, "bold"),width=160, image=self.encrypt_photo, compound="top")
         self.encrypt_button.pack(pady=5)
         
         # Initialization of the encryption key/file variable
@@ -77,15 +94,15 @@ class App:
         #Decryption key label and buttons
         self.decrypt_key_label = Label(self.decryption_tab, text="Decryption Key", font=("Helvetica", 16))
         self.decrypt_key_label.pack(pady=10)
-        self.decrypt_key_button = Button(self.decryption_tab, text="Import Key", command=self.import_key, font=("Helvetica", 10))
+        self.decrypt_key_button = Button(self.decryption_tab, text="Import Key", command=self.import_key, font=("Helvetica", 10, "bold") ,width=160, image=self.import_photo, compound="top")
         self.decrypt_key_button.pack(pady=5)
         
         #Decryption file selection label and buttons
         self.decrypt_file_label = Label(self.decryption_tab, text="Encrypted File", font=("Helvetica", 16))
         self.decrypt_file_label.pack(pady=10)
-        self.decrypt_file_select_button = Button(self.decryption_tab, text="Select Encrypted File", command=self.select_file, font=("Helvetica", 10))
+        self.decrypt_file_select_button = Button(self.decryption_tab, text="Select Encrypted File", command=self.select_file, font=("Helvetica", 10), width=160, image=self.select_photo, compound="top")
         self.decrypt_file_select_button.pack(pady=5)
-        self.decrypt_button = Button(self.decryption_tab, text="Decrypt File", command=self.decrypt_file, font=("Helvetica", 12))
+        self.decrypt_button = Button(self.decryption_tab, text="Decrypt File", command=self.decrypt_file, font=("Helvetica", 12),width=160 , image=self.decryption_photo, compound="top")
         self.decrypt_button.pack(pady=5)
         
         # Initialization of the decryption key/file variable
@@ -243,6 +260,6 @@ class App:
 root = Tk()
 
 #Set size of window
-root.geometry("400x400")
+root.geometry("500x500")
 app = App(root)
 root.mainloop()
