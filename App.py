@@ -3,6 +3,7 @@ from tkinter import filedialog, messagebox
 from tkinter import ttk
 from cryptography.fernet import Fernet
 from datetime import datetime
+from PIL import ImageTk, Image
 import tkinter as tk
 import os
 
@@ -16,18 +17,34 @@ class App:
         self.notebook = ttk.Notebook(master)
         self.notebook.pack(fill="both", expand=True)
         
+        #Image objects
+        img1 = Image.open("lock.png",)
+        img1 = img1.resize((50, 50))
+        self.encrypt_photo = ImageTk.PhotoImage(img1)
+        
+        img2 = Image.open("decryption.png",)
+        img2 = img2.resize((50, 50))
+        self.decryption_photo = ImageTk.PhotoImage(img2)
+        
+        img3 = Image.open("help.png",)
+        img3 = img3.resize((50, 50))
+        self.help_photo = ImageTk.PhotoImage(img3)
+        
         #Home Tab
         self.home_tab = ttk.Frame(self.notebook)
         self.notebook.add(self.home_tab, text="Home")
         self.home_label = Label(self.home_tab, text= "Welcome safe encryption", font= ("Helvetica", 16))
         
         #Encrypt and Decrypt buttons at home tab
+        
         self.home_label = Label(self.home_tab, text="Home", font=("Helvetica", 16))
         self.home_label.pack(pady=10)
-        self.encrypt_button = Button(self.home_tab, text="Encrypt", font=("Helvetica", 10), command=lambda: self.notebook.select(self.encryption_tab))
-        self.encrypt_button.pack(pady=10)
-        self.decrypt_button = Button(self.home_tab, text="Decrypt", font=("Helvetica", 10), command=lambda: self.notebook.select(self.decryption_tab))
-        self.decrypt_button.pack(pady=10)
+        self.encrypt_button = Button(self.home_tab, text="Encrypt", font=("Helvetica", 10, "bold"), image=self.encrypt_photo, compound="top", command=lambda: self.notebook.select(self.encryption_tab))
+        self.encrypt_button.pack(pady=10, padx=35, side="left", anchor="n")
+        self.decrypt_button = Button(self.home_tab, text="Decrypt", font=("Helvetica", 10, "bold"), image=self.decryption_photo, compound="top", command=lambda: self.notebook.select(self.decryption_tab))
+        self.decrypt_button.pack(pady=10, padx=35, side="left", anchor="n")
+        self.help_button = Button(self.home_tab, text="Help me", font=("Helvetica", 10, "bold"), image=self.help_photo, compound="top", command=lambda: self.notebook.select(self.help_tab))
+        self.help_button.pack(pady=10, padx=35, side="left", anchor="n")
         
         #Encryption tab
         self.encryption_tab = ttk.Frame(self.notebook)
