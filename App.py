@@ -1,3 +1,5 @@
+import random
+import time
 from tkinter import *
 from tkinter import filedialog, messagebox
 from tkinter import ttk
@@ -7,8 +9,6 @@ from PIL import ImageTk, Image
 from splash_screen import SplashScreen
 import tkinter as tk
 import os
-import hashlib
-
 
 class App:
     def __init__(self, master):
@@ -69,6 +69,7 @@ class App:
         self.decrypt_button.pack(pady=10, padx=25, side="left", anchor="n")
         self.help_button = Button(self.home_tab, text="Help me", font=("Helvetica", 10, "bold"),height=70, width=100, image=self.help_photo, compound="top", command=lambda: self.notebook.select(self.help_tab))
         self.help_button.pack(pady=10, padx=25, side="left", anchor="n")
+        
         
         #Encryption tab
         self.encryption_tab = ttk.Frame(self.notebook)
@@ -218,10 +219,13 @@ class App:
         if not hasattr(self, 'filenames') or not self.filenames:
             messagebox.showerror("Error", "Please one or more files.")
             return
-        cipher_suite = Fernet(self.key)
         
+        cipher_suite = Fernet(self.key)
         total_files = len(self.filenames)
+        
         self.show_progress_bar()
+        self.progress_bar["value"] = 0
+        self.progress_bar.update()
         for idx,filename in enumerate(self.filenames):
             if not os.path.isfile(filename):
                 messagebox.showerror("Error", "Selected file does not exist.")
@@ -239,11 +243,13 @@ class App:
                 f.flush()
                 os.fsync(f.fileno())
                 #Progress bar
-                progress = ((idx + 1)/ total_files) * 100
-                self.progress_bar["value"] = progress
-                self.progress_bar.update()
-                self.hide_progress_bar()
+                self.progress_bar.lift()
+                for i in range (1, 101):
+                    self.progress_bar["value"] = i
+                    self.progress_bar.update()
+                    time.sleep(random.uniform(0.01, 0.05))
             messagebox.showinfo("Success", "The file has been encrypted.")
+        self.hide_progress_bar()
 
     def decrypt_file(self):
         ENCRYPTED_FILE_SIGNATURE = b"ENCRYPTED:" 
@@ -253,10 +259,13 @@ class App:
         if not hasattr(self, 'filenames') or not self.filenames:
             messagebox.showerror("Error", "Please one or more files.")
             return
-        cipher_suite = Fernet(self.key)
         
+        cipher_suite = Fernet(self.key)
         total_files = len(self.filenames)
+    
         self.show_progress_bar()
+        self.progress_bar["value"] = 0
+        self.progress_bar.update()
         for idx,filename in enumerate(self.filenames):
             if not os.path.isfile(filename):
                 messagebox.showerror("Error", "Selected file does not exist")
@@ -279,11 +288,12 @@ class App:
                 f.flush()
                 os.fsync(f.fileno())
                 #Progress bar
-                progress = ((idx + 1)/ total_files) * 100
-                self.progress_bar["value"] = progress
-                self.progress_bar.update()
-                self.hide_progress_bar()
+                for i in range(1, 101):
+                    self.progress_bar["value"] = i
+                    self.progress_bar.update()
+                    time.sleep(random.uniform(0.01, 0.05))
                 messagebox.showinfo("Success", "File has been decrypted and saved!")
+            self.hide_progress_bar()
             
         
 #Root window
