@@ -4,18 +4,29 @@ from tkinter import ttk
 from cryptography.fernet import Fernet
 from datetime import datetime
 from PIL import ImageTk, Image
+from splash_screen import SplashScreen
 import tkinter as tk
 import os
+import hashlib
 
 
 class App:
     def __init__(self, master):
         self.master = master
         master.title("File Encryption App")
-        
         #Notebook widget for tabs
         self.notebook = ttk.Notebook(master)
         self.notebook.pack(fill="both", expand=True)
+        
+        #SplashScreen to show logo before the app displays
+        self.splash_screen = SplashScreen(master)
+        self.master.after(5000, self.show_main_app)
+        #SplashScreen attributes
+    def show_main_app(self):
+        self.splash_screen.close_splash_screen()
+        self.master.attributes('-topmost', True)
+        self.master.lift()
+        self.master.focus_force()
         
         #Image objects
         img1 = Image.open("lock.png",)
@@ -46,22 +57,18 @@ class App:
         img7 = img7.resize((50, 50))
         self.import_photo = ImageTk.PhotoImage(img7)
         
-        
         #Home Tab
         self.home_tab = ttk.Frame(self.notebook)
         self.notebook.add(self.home_tab, text="Home")
-        self.home_label = Label(self.home_tab, text= "Welcome safe encryption", font= ("Helvetica", 16))
-        
-        #Encrypt and Decrypt buttons at home tab
-        
-        self.home_label = Label(self.home_tab, text="Home", font=("Helvetica", 16))
+        self.home_label = Label(self.home_tab, text= "Welcome to SafeCryption", font= ("Helvetica", 16))
         self.home_label.pack(pady=10)
-        self.encrypt_button = Button(self.home_tab, text="Encrypt", font=("Helvetica", 10, "bold"), image=self.encrypt_photo, compound="top", command=lambda: self.notebook.select(self.encryption_tab))
-        self.encrypt_button.pack(pady=10, padx=50, side="left", anchor="n")
-        self.decrypt_button = Button(self.home_tab, text="Decrypt", font=("Helvetica", 10, "bold"), image=self.decryption_photo, compound="top", command=lambda: self.notebook.select(self.decryption_tab))
-        self.decrypt_button.pack(pady=10, padx=50, side="left", anchor="n")
-        self.help_button = Button(self.home_tab, text="Help me", font=("Helvetica", 10, "bold"), image=self.help_photo, compound="top", command=lambda: self.notebook.select(self.help_tab))
-        self.help_button.pack(pady=10, padx=50, side="left", anchor="n")
+        #Encrypt and Decrypt buttons at home tab
+        self.encrypt_button = Button(self.home_tab, text="Encrypt", font=("Helvetica", 10, "bold"),height=70, width=100, image=self.encrypt_photo, compound="top", command=lambda: self.notebook.select(self.encryption_tab))
+        self.encrypt_button.pack(pady=10, padx=25, side="left", anchor="n")
+        self.decrypt_button = Button(self.home_tab, text="Decrypt", font=("Helvetica", 10, "bold"),height=70, width=100, image=self.decryption_photo, compound="top", command=lambda: self.notebook.select(self.decryption_tab))
+        self.decrypt_button.pack(pady=10, padx=25, side="left", anchor="n")
+        self.help_button = Button(self.home_tab, text="Help me", font=("Helvetica", 10, "bold"),height=70, width=100, image=self.help_photo, compound="top", command=lambda: self.notebook.select(self.help_tab))
+        self.help_button.pack(pady=10, padx=25, side="left", anchor="n")
         
         #Encryption tab
         self.encryption_tab = ttk.Frame(self.notebook)
@@ -92,7 +99,7 @@ class App:
         self.notebook.add(self.decryption_tab, text= "Decrypt")
         
         #Decryption key label and buttons
-        self.decrypt_key_label = Label(self.decryption_tab, text="Decryption Key", font=("Helvetica", 16))
+        self.decrypt_key_label = Label(self.decryption_tab, text="Decryption Key", font=("Helvetica", 16, "bold"))
         self.decrypt_key_label.pack(pady=10)
         self.decrypt_key_button = Button(self.decryption_tab, text="Import Key", command=self.import_key, font=("Helvetica", 10, "bold") ,width=160, image=self.import_photo, compound="top")
         self.decrypt_key_button.pack(pady=5)
@@ -100,9 +107,9 @@ class App:
         #Decryption file selection label and buttons
         self.decrypt_file_label = Label(self.decryption_tab, text="Encrypted File", font=("Helvetica", 16))
         self.decrypt_file_label.pack(pady=10)
-        self.decrypt_file_select_button = Button(self.decryption_tab, text="Select Encrypted File", command=self.select_file, font=("Helvetica", 10), width=160, image=self.select_photo, compound="top")
+        self.decrypt_file_select_button = Button(self.decryption_tab, text="Select Encrypted File", command=self.select_file, font=("Helvetica", 10, "bold"), width=160, image=self.select_photo, compound="top")
         self.decrypt_file_select_button.pack(pady=5)
-        self.decrypt_button = Button(self.decryption_tab, text="Decrypt File", command=self.decrypt_file, font=("Helvetica", 12),width=160 , image=self.decryption_photo, compound="top")
+        self.decrypt_button = Button(self.decryption_tab, text="Decrypt File", command=self.decrypt_file, font=("Helvetica", 12, "bold"),width=160 , image=self.decryption_photo, compound="top")
         self.decrypt_button.pack(pady=5)
         
         # Initialization of the decryption key/file variable
@@ -117,7 +124,7 @@ class App:
         self.help_label = Label(self.help_tab, text= "Help", font= ("Helvetica", 16))
         self.help_label.pack(pady=10)
         self.help_var = StringVar()
-        self.help_var.set("QnA")
+        self.help_var.set("Q&A")
         self.help_dropdown = OptionMenu(self.help_tab, self.help_var, "What can I encrypt?", "I lost my encryption key", "Can I send encrypted files to people?",
                                         "Can I create my own encryption key","What is an encryption key?", "Is there a limit on the file size?", "How do I know if a file in encrypted?",
                                         command=self.update_help_answer)
@@ -148,6 +155,14 @@ class App:
             answer = ""
         
         self.help_answer.insert(END, answer)
+        
+        #Progress bar
+    def show_progress_bar(self):
+        self.progress_window = tk.Toplevel(self.master)
+        self.progress_bar = ttk.Progressbar(self.progress_window, orient="horizontal", length=600, mode="determinate")
+        self.progress_bar.pack(pady=10)
+    def hide_progress_bar(self):
+        self.progress_window.destroy()
         
     def generate_key(self):
         # Generate a random key for encryption
@@ -205,7 +220,9 @@ class App:
             return
         cipher_suite = Fernet(self.key)
         
-        for filename in self.filenames:
+        total_files = len(self.filenames)
+        self.show_progress_bar()
+        for idx,filename in enumerate(self.filenames):
             if not os.path.isfile(filename):
                 messagebox.showerror("Error", "Selected file does not exist.")
                 continue
@@ -221,6 +238,11 @@ class App:
                 f.write(encrypted_text)
                 f.flush()
                 os.fsync(f.fileno())
+                #Progress bar
+                progress = ((idx + 1)/ total_files) * 100
+                self.progress_bar["value"] = progress
+                self.progress_bar.update()
+                self.hide_progress_bar()
             messagebox.showinfo("Success", "The file has been encrypted.")
 
     def decrypt_file(self):
@@ -230,9 +252,12 @@ class App:
             messagebox.showerror("Error", "Please generate a key.")
         if not hasattr(self, 'filenames') or not self.filenames:
             messagebox.showerror("Error", "Please one or more files.")
-        else:
-            cipher_suite = Fernet(self.key)
-        for filename in self.filenames:
+            return
+        cipher_suite = Fernet(self.key)
+        
+        total_files = len(self.filenames)
+        self.show_progress_bar()
+        for idx,filename in enumerate(self.filenames):
             if not os.path.isfile(filename):
                 messagebox.showerror("Error", "Selected file does not exist")
                 continue
@@ -253,6 +278,11 @@ class App:
                 f.write(decrypted_text)
                 f.flush()
                 os.fsync(f.fileno())
+                #Progress bar
+                progress = ((idx + 1)/ total_files) * 100
+                self.progress_bar["value"] = progress
+                self.progress_bar.update()
+                self.hide_progress_bar()
                 messagebox.showinfo("Success", "File has been decrypted and saved!")
             
         
@@ -260,6 +290,6 @@ class App:
 root = Tk()
 
 #Set size of window
-root.geometry("500x500")
+root.geometry("500x600")
 app = App(root)
 root.mainloop()
