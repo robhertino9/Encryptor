@@ -7,6 +7,7 @@ from cryptography.fernet import Fernet
 from datetime import datetime
 from PIL import ImageTk, Image
 from splash_screen import SplashScreen
+from encryption import encrypt_file, decrypt_file
 import tkinter as tk
 import os
 
@@ -17,6 +18,7 @@ class App:
         #Notebook widget for tabs
         self.notebook = ttk.Notebook(master)
         self.notebook.pack(fill="both", expand=True)
+        self.parent = self
         
         #SplashScreen to show logo before the app displays
         self.splash_screen = SplashScreen(master)
@@ -88,7 +90,7 @@ class App:
         self.file_label.pack(pady=10)
         self.file_select_button = Button(self.encryption_tab, text="Select File", command=self.select_file, font=("Helvetica", 10, "bold"), width=160, image=self.select_photo, compound="top")
         self.file_select_button.pack(pady=5)
-        self.encrypt_button = Button(self.encryption_tab, text="Encrypt File", command=self.encrypt_file, font=("Helvetica", 12, "bold"),width=160, image=self.encrypt_photo, compound="top")
+        self.encrypt_button = Button(self.encryption_tab, text="Encrypt File", command=self.encrypt, font=("Helvetica", 12, "bold"),width=160, image=self.encrypt_photo, compound="top")
         self.encrypt_button.pack(pady=5)
         
         # Initialization of the encryption key/file variable
@@ -110,7 +112,7 @@ class App:
         self.decrypt_file_label.pack(pady=10)
         self.decrypt_file_select_button = Button(self.decryption_tab, text="Select Encrypted File", command=self.select_file, font=("Helvetica", 10, "bold"), width=160, image=self.select_photo, compound="top")
         self.decrypt_file_select_button.pack(pady=5)
-        self.decrypt_button = Button(self.decryption_tab, text="Decrypt File", command=self.decrypt_file, font=("Helvetica", 12, "bold"),width=160 , image=self.decryption_photo, compound="top")
+        self.decrypt_button = Button(self.decryption_tab, text="Decrypt File", command=self.decrypt, font=("Helvetica", 12, "bold"),width=160 , image=self.decryption_photo, compound="top")
         self.decrypt_button.pack(pady=5)
         
         # Initialization of the decryption key/file variable
@@ -160,6 +162,7 @@ class App:
         #Progress bar
     def show_progress_bar(self):
         self.progress_window = tk.Toplevel(self.master)
+        self.progress_window.attributes('-topmost', True)
         self.progress_bar = ttk.Progressbar(self.progress_window, orient="horizontal", length=600, mode="determinate")
         self.progress_bar.pack(pady=10)
     def hide_progress_bar(self):
@@ -210,90 +213,13 @@ class App:
         self.filenames = filedialog.askopenfilenames()
         
     
-    def encrypt_file(self):
-        ENCRYPTED_FILE_SIGNATURE = b"ENCRYPTED:" 
-        #Error Handling
-        if self.key is None:
-            messagebox.showerror("Error", "Please generate a key.")
-            return
-        if not hasattr(self, 'filenames') or not self.filenames:
-            messagebox.showerror("Error", "Please one or more files.")
-            return
-        
-        cipher_suite = Fernet(self.key)
-        total_files = len(self.filenames)
-        
-        self.show_progress_bar()
-        self.progress_bar["value"] = 0
-        self.progress_bar.update()
-        for idx,filename in enumerate(self.filenames):
-            if not os.path.isfile(filename):
-                messagebox.showerror("Error", "Selected file does not exist.")
-                continue
-            elif filename.startswith(ENCRYPTED_FILE_SIGNATURE.decode()):
-                messagebox.showerror("Error", "Selected file is already encrypted!")
-                continue
-            # Encrypt the file using the key
-            with open(filename, "rb") as f:
-                plaintext = f.read()
-            encrypted_text = cipher_suite.encrypt(plaintext)
-            encrypted_text = ENCRYPTED_FILE_SIGNATURE + encrypted_text
-            with open(filename, "wb") as f:
-                f.write(encrypted_text)
-                f.flush()
-                os.fsync(f.fileno())
-                #Progress bar
-                self.progress_bar.lift()
-                for i in range (1, 101):
-                    self.progress_bar["value"] = i
-                    self.progress_bar.update()
-                    time.sleep(random.uniform(0.01, 0.05))
-            messagebox.showinfo("Success", "The file has been encrypted.")
-        self.hide_progress_bar()
+    def encrypt(self):
+        if self.filenames:
+            encrypt_file(self, self.filenames)
 
-    def decrypt_file(self):
-        ENCRYPTED_FILE_SIGNATURE = b"ENCRYPTED:" 
-        #Error Handling
-        if self.key is None:
-            messagebox.showerror("Error", "Please generate a key.")
-        if not hasattr(self, 'filenames') or not self.filenames:
-            messagebox.showerror("Error", "Please one or more files.")
-            return
-        
-        cipher_suite = Fernet(self.key)
-        total_files = len(self.filenames)
-    
-        self.show_progress_bar()
-        self.progress_bar["value"] = 0
-        self.progress_bar.update()
-        for idx,filename in enumerate(self.filenames):
-            if not os.path.isfile(filename):
-                messagebox.showerror("Error", "Selected file does not exist")
-                continue
-            with open(filename, "rb") as f:
-                signature = f.read(len(ENCRYPTED_FILE_SIGNATURE))
-                if signature != ENCRYPTED_FILE_SIGNATURE:
-                    messagebox.showerror("Error", "Selected file is not encrypted")
-                    continue
-            
-            # Decrypt the file using the key
-                encrypted_text = f.read()
-            try:
-                decrypted_text = cipher_suite.decrypt(encrypted_text)
-            except:
-                messagebox.showerror("Error", "Incorrect Decryption key, please try again!")
-                return
-            with open(filename, "wb") as f:
-                f.write(decrypted_text)
-                f.flush()
-                os.fsync(f.fileno())
-                #Progress bar
-                for i in range(1, 101):
-                    self.progress_bar["value"] = i
-                    self.progress_bar.update()
-                    time.sleep(random.uniform(0.01, 0.05))
-                messagebox.showinfo("Success", "File has been decrypted and saved!")
-            self.hide_progress_bar()
+    def decrypt(self):
+        if self.filenames:
+            decrypt_file(self, self.filenames)
             
         
 #Root window
