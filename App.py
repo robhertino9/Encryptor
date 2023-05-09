@@ -8,6 +8,7 @@ from datetime import datetime
 from PIL import ImageTk, Image
 from splash_screen import SplashScreen
 from encryption import encrypt_file, decrypt_file
+from keys import generate_key, import_key, export_key
 import tkinter as tk
 import os
 
@@ -31,38 +32,38 @@ class App:
         self.master.focus_force()
         
         #Image objects
-        img1 = Image.open("lock.png",)
+        img1 = Image.open(os.path.join("Images", "lock.png"))
         img1 = img1.resize((50, 50))
         self.encrypt_photo = ImageTk.PhotoImage(img1)
         
-        img2 = Image.open("decryption.png",)
+        img2 = Image.open(os.path.join("Images", "decryption.png"))
         img2 = img2.resize((50, 50))
         self.decryption_photo = ImageTk.PhotoImage(img2)
         
-        img3 = Image.open("help.png",)
+        img3 = Image.open(os.path.join("Images", "help.png"))
         img3 = img3.resize((50, 50))
         self.help_photo = ImageTk.PhotoImage(img3)
         
-        img4 = Image.open("key.png",)
+        img4 = Image.open(os.path.join("Images", "key.png"))
         img4 = img4.resize((50, 50))
         self.key_photo = ImageTk.PhotoImage(img4)
         
-        img5 = Image.open("export.png",)
+        img5 = Image.open(os.path.join("Images", "export.png"))
         img5 = img5.resize((50, 50))
         self.export_photo = ImageTk.PhotoImage(img5)
         
-        img6 = Image.open("select.png",)
+        img6 = Image.open(os.path.join("Images", "select.png"))
         img6 = img6.resize((50, 50))
         self.select_photo = ImageTk.PhotoImage(img6)
         
-        img7 = Image.open("import.png",)
+        img7 = Image.open(os.path.join("Images", "import.png"))
         img7 = img7.resize((50, 50))
         self.import_photo = ImageTk.PhotoImage(img7)
         
         #Home Tab
-        self.home_tab = ttk.Frame(self.notebook)
+        self.home_tab = ttk.Frame(self.notebook, padding=10)
         self.notebook.add(self.home_tab, text="Home")
-        self.home_label = Label(self.home_tab, text= "Welcome to SafeCryption", font= ("Helvetica", 16))
+        self.home_label = Label(self.home_tab, text= "Welcome to SafeCryption", font= ("Helvetica", 16),background='#ADD8E6')
         self.home_label.pack(pady=10)
         #Encrypt and Decrypt buttons at home tab
         self.encrypt_button = Button(self.home_tab, text="Encrypt", font=("Helvetica", 10, "bold"),height=70, width=100, image=self.encrypt_photo, compound="top", command=lambda: self.notebook.select(self.encryption_tab))
@@ -70,23 +71,28 @@ class App:
         self.decrypt_button = Button(self.home_tab, text="Decrypt", font=("Helvetica", 10, "bold"),height=70, width=100, image=self.decryption_photo, compound="top", command=lambda: self.notebook.select(self.decryption_tab))
         self.decrypt_button.pack(pady=10, padx=25, side="left", anchor="n")
         self.help_button = Button(self.home_tab, text="Help me", font=("Helvetica", 10, "bold"),height=70, width=100, image=self.help_photo, compound="top", command=lambda: self.notebook.select(self.help_tab))
-        self.help_button.pack(pady=10, padx=25, side="left", anchor="n")
+        self.help_button.pack(pady=10, padx=25, side="left", anchor="n")   
         
+        #Background colour of home tab
+        new_style = ttk.Style()
+        new_style.configure('TFrame', background='#ADD8E6')
+        self.home_tab.style = new_style
+        self.home_tab.configure(style='TFrame')     
         
         #Encryption tab
         self.encryption_tab = ttk.Frame(self.notebook)
         self.notebook.add(self.encryption_tab, text="Encrypt")
 
         #Key label and buttons
-        self.key_label = Label(self.encryption_tab, text="Keys", font=("Helvetica", 16))
+        self.key_label = Label(self.encryption_tab, text="Keys", font=("Helvetica", 16, "bold"), background='#ADD8E6')
         self.key_label.pack(pady=10)
-        self.key_button = Button(self.encryption_tab, text="Generate Encryption Key", command=self.generate_key, font=("Helvetica", 10, "bold"), image=self.key_photo, compound="top")
+        self.key_button = Button(self.encryption_tab, text="Generate Encryption Key", command=self.generate_keys, font=("Helvetica", 10, "bold"), image=self.key_photo, compound="top")
         self.key_button.pack(pady=5)
-        self.key_export_button = Button(self.encryption_tab, text="Export Key", command=self.export_key, font=("Helvetica", 10, "bold"), width=160, image=self.export_photo, compound="top")
+        self.key_export_button = Button(self.encryption_tab, text="Export Key", command=self.export_keys, font=("Helvetica", 10, "bold"), width=160, image=self.export_photo, compound="top")
         self.key_export_button.pack(pady=5)
 
         #File selection label and buttons
-        self.file_label = Label(self.encryption_tab, text="File", font=("Helvetica", 16))
+        self.file_label = Label(self.encryption_tab, text="File", font=("Helvetica", 16, "bold"), background='#ADD8E6')
         self.file_label.pack(pady=10)
         self.file_select_button = Button(self.encryption_tab, text="Select File", command=self.select_file, font=("Helvetica", 10, "bold"), width=160, image=self.select_photo, compound="top")
         self.file_select_button.pack(pady=5)
@@ -102,13 +108,13 @@ class App:
         self.notebook.add(self.decryption_tab, text= "Decrypt")
         
         #Decryption key label and buttons
-        self.decrypt_key_label = Label(self.decryption_tab, text="Decryption Key", font=("Helvetica", 16, "bold"))
+        self.decrypt_key_label = Label(self.decryption_tab, text="Decryption Key", font=("Helvetica", 16, "bold"), background='#ADD8E6')
         self.decrypt_key_label.pack(pady=10)
-        self.decrypt_key_button = Button(self.decryption_tab, text="Import Key", command=self.import_key, font=("Helvetica", 10, "bold") ,width=160, image=self.import_photo, compound="top")
+        self.decrypt_key_button = Button(self.decryption_tab, text="Import Key", command=self.import_keys, font=("Helvetica", 10, "bold") ,width=160, image=self.import_photo, compound="top")
         self.decrypt_key_button.pack(pady=5)
         
         #Decryption file selection label and buttons
-        self.decrypt_file_label = Label(self.decryption_tab, text="Encrypted File", font=("Helvetica", 16))
+        self.decrypt_file_label = Label(self.decryption_tab, text="Encrypted File", font=("Helvetica", 16), background='#ADD8E6')
         self.decrypt_file_label.pack(pady=10)
         self.decrypt_file_select_button = Button(self.decryption_tab, text="Select Encrypted File", command=self.select_file, font=("Helvetica", 10, "bold"), width=160, image=self.select_photo, compound="top")
         self.decrypt_file_select_button.pack(pady=5)
@@ -124,7 +130,7 @@ class App:
         self.notebook.add(self.help_tab, text= "Help")
         
         #Help Menu
-        self.help_label = Label(self.help_tab, text= "Help", font= ("Helvetica", 16))
+        self.help_label = Label(self.help_tab, text= "Help", font= ("Helvetica", 16, "bold"), background='#ADD8E6')
         self.help_label.pack(pady=10)
         self.help_var = StringVar()
         self.help_var.set("Q&A")
@@ -163,50 +169,22 @@ class App:
     def show_progress_bar(self):
         self.progress_window = tk.Toplevel(self.master)
         self.progress_window.attributes('-topmost', True)
-        self.progress_bar = ttk.Progressbar(self.progress_window, orient="horizontal", length=600, mode="determinate")
+        self.progress_bar = ttk.Progressbar(self.progress_window, orient="horizontal", length=300, mode="determinate")
         self.progress_bar.pack(pady=10)
     def hide_progress_bar(self):
         self.progress_window.destroy()
         
-    def generate_key(self):
-        # Generate a random key for encryption
-        self.key = Fernet.generate_key()
-        messagebox.showinfo("Success", "A random key has been generated.")
+    def generate_keys(self):
+        #Reference the Generate keys from keys
+        generate_key(self)
 
-    def export_key(self):
-        # Export the key to a file
-        if self.key is None:
-            messagebox.showerror("Error", "Please generate a key.")
-        else:
-            filename = filedialog.asksaveasfilename(defaultextension=".key")
-            if not filename:
-                return
-            with open(filename, "wb") as f:
-                f.write(self.key)
-                messagebox.showinfo("Success", "Key has been exported to {}".format(filename))
+    def export_keys(self):
+        #Reference export key from keys
+        export_key(self)
                 
-    def import_key(self):
-        #File selection
-        filename = filedialog.askopenfilename()
-        
-        #If user exits dialog do nothing
-        if not filename:
-            return
-        
-        #Read the key
-        with open(filename, "rb") as f:
-            key = f.read()
-            
-        #check if the key is valid
-        try:
-            Fernet(key)
-        except:
-            messagebox.showerror("Error", "Invalid key file")
-            return
-        
-        #Key variable to imported key
-        self.key = key
-        messagebox.showinfo("Success", "Key has been imported from {}".format(filename))
+    def import_keys(self):
+        #Reference import key from keys
+        import_key(self)
 
     def select_file(self):
         # Show a file selection dialog
