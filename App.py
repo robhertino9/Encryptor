@@ -15,11 +15,12 @@ import os
 class App:
     def __init__(self, master):
         self.master = master
-        master.title("File Encryption App")
+        master.title("SafeCryption")
         #Notebook widget for tabs
         self.notebook = ttk.Notebook(master)
         self.notebook.pack(fill="both", expand=True)
-        self.parent = self
+        self.key = None
+        self.filenames = []
         
         #SplashScreen to show logo before the app displays
         self.splash_screen = SplashScreen(master)
@@ -60,10 +61,14 @@ class App:
         img7 = img7.resize((50, 50))
         self.import_photo = ImageTk.PhotoImage(img7)
         
+        #Font for tabs
+        self.notebook_style = ttk.Style()
+        self.notebook_style.configure('TNotebook.Tab', font=('Helvetica', 10, "bold"))
+        
         #Home Tab
         self.home_tab = ttk.Frame(self.notebook, padding=10)
         self.notebook.add(self.home_tab, text="Home")
-        self.home_label = Label(self.home_tab, text= "Welcome to SafeCryption", font= ("Helvetica", 16),background='#ADD8E6')
+        self.home_label = Label(self.home_tab, text= "Welcome to SafeCryption", font= ("Helvetica", 16, "bold"),background='#ADD8E6')
         self.home_label.pack(pady=10)
         #Encrypt and Decrypt buttons at home tab
         self.encrypt_button = Button(self.home_tab, text="Encrypt", font=("Helvetica", 10, "bold"),height=70, width=100, image=self.encrypt_photo, compound="top", command=lambda: self.notebook.select(self.encryption_tab))
@@ -73,7 +78,7 @@ class App:
         self.help_button = Button(self.home_tab, text="Help me", font=("Helvetica", 10, "bold"),height=70, width=100, image=self.help_photo, compound="top", command=lambda: self.notebook.select(self.help_tab))
         self.help_button.pack(pady=10, padx=25, side="left", anchor="n")   
         
-        #Background colour of home tab
+        #Background colour of tabs
         new_style = ttk.Style()
         new_style.configure('TFrame', background='#ADD8E6')
         self.home_tab.style = new_style
@@ -101,7 +106,7 @@ class App:
         
         # Initialization of the encryption key/file variable
         self.key = None
-        self.filename = None
+        self.filenames = None
         
         #Decryption tab
         self.decryption_tab = ttk.Frame(self.notebook)
@@ -123,7 +128,7 @@ class App:
         
         # Initialization of the decryption key/file variable
         self.key = None
-        self.filename = None
+        self.filenames = None
         
         #Help Tab
         self.help_tab = ttk.Frame(self.notebook)
@@ -165,7 +170,7 @@ class App:
         
         self.help_answer.insert(END, answer)
         
-        #Progress bar
+    #Progress bar
     def show_progress_bar(self):
         self.progress_window = tk.Toplevel(self.master)
         self.progress_window.attributes('-topmost', True)
@@ -189,12 +194,13 @@ class App:
     def select_file(self):
         # Show a file selection dialog
         self.filenames = filedialog.askopenfilenames()
-        
     
+    #Encryption
     def encrypt(self):
         if self.filenames:
             encrypt_file(self, self.filenames)
 
+    #Decryption
     def decrypt(self):
         if self.filenames:
             decrypt_file(self, self.filenames)

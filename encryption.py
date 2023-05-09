@@ -16,12 +16,12 @@ def encrypt_file(self, filenames):
         if self.key is None:
             messagebox.showerror("Error", "Please generate a key.")
             return
-        if not self.filenames:
+        print(self.filenames)
+        if not filenames:
             messagebox.showerror("Error", "Please one or more files.")
             return
         
         cipher_suite = Fernet(self.key)
-        total_files = len(self.filenames)
         
         self.show_progress_bar()
         self.progress_bar["value"] = 0
@@ -61,7 +61,6 @@ def decrypt_file(self, filenames):
             return
         
         cipher_suite = Fernet(self.key)
-        total_files = len(self.filenames)
     
         self.show_progress_bar()
         self.progress_bar["value"] = 0
