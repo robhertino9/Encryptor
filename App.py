@@ -15,6 +15,7 @@ import os
 class App:
     def __init__(self, master):
         self.master = master
+        self.master.protocol("WM_DELETE_WINDOW", self.on_exit)
         master.title("SafeCryption")
         #Notebook widget for tabs
         self.notebook = ttk.Notebook(master)
@@ -135,40 +136,43 @@ class App:
         self.notebook.add(self.help_tab, text= "Help")
         
         #Help Menu
-        self.help_label = Label(self.help_tab, text= "Help", font= ("Helvetica", 16, "bold"), background='#ADD8E6')
-        self.help_label.pack(pady=10)
+        help_label = Label(self.help_tab, text="Help", font=("Helvetica", 16, "bold"), background="#ADD8E6")
+        help_label.pack(pady=10)
+        
+        self.questions = {
+            "How do I use this application?": "1. Open the encryption tab\n2. Generate a encryption key\n3. Select a file to encrypt\n4. Click encrypt file and wait",
+            "What can I encrypt?": "You can encrypt any type of file, including text documents, images, videos, and more.",
+            "I lost my encryption key": "Unfortunately, if you lose your encryption key, there is no way to recover it. Make sure to export your encryption key when you are encrypting any file!",
+            "Can I send encrypted files to people?": "Yes, you can send encrypted files to other people as long as they have the decryption key. Make sure to send the key securely to ensure the security of your files.",
+            "Can I create my own encryption key": "Yes, you can create your own encryption key using the 'Generate Encryption Key' button on the Encryption tab.",
+            "What is an encryption key?": "An encryption key is a sequence of characters used to encrypt and decrypt files. It is important to keep your key secure and not share it with anyone else.",
+            "Is there a limit on the file size?": "There is no limit on the size of files you can encrypt or decrypt, but larger files may take longer to process.",
+            "How do I know if a file is encrypted?": "If you try to open an encrypted file without the key, it will appear as gibberish or the file wont open"
+        }
+        
         self.help_var = StringVar()
-        self.help_var.set("Q&A")
-        self.help_dropdown = OptionMenu(self.help_tab, self.help_var, "What can I encrypt?", "I lost my encryption key", "Can I send encrypted files to people?",
-                                        "Can I create my own encryption key","What is an encryption key?", "Is there a limit on the file size?", "How do I know if a file in encrypted?",
-                                        command=self.update_help_answer)
+        self.help_var.set(list(self.questions.keys())[0])
+        self.help_dropdown = OptionMenu(self.help_tab, self.help_var, *self.questions.keys(), command=self.update_help_answer)
         self.help_dropdown.pack(pady=10)
         
-        #Widgets for help answers
-        self.help_answer = Text(self.help_tab, width=60, height=10, borderwidth=2, relief="groove", font=("Helvetica", 12), padx=5, pady=5)
-        self.help_answer.pack(pady=10)
+        # Widgets for help answers
+        self.help_answer_frame = Frame(self.help_tab, padx=10, pady=10)
+        self.help_answer_frame.pack(fill="both", expand=True)
+        self.help_answer_heading = Label(self.help_answer_frame, text="Please select a question to display the answer.", font=("Helvetica", 14, "bold"), pady=10)
+        self.help_answer_heading.pack()
         
     def update_help_answer(self, selection):
-        self.help_answer.delete("1.0", END)
+        self.help_answer_heading.destroy()
+        if hasattr(self, "help_answer_text"):
+            self.help_answer_text.destroy()
         
-        if selection == "What can I encrypt?":
-            answer = "You can encrypt any type of file, including text documents, images, videos, and more."
-        elif selection == "I lost my encryption key":
-            answer = "Unfortunately, if you lose your encryption key, there is no way to recover it. Make sure to export your encryption key when you are encrypting any file!"
-        elif selection == "Can I send encrypted files to people?":
-            answer = "Yes, you can send encrypted files to other people as long as they have the decryption key. Make sure to send the key securely to ensure the security of your files."
-        elif selection == "Can I create my own encryption key":
-            answer = "Yes, you can create your own encryption key using the 'Generate Encryption Key' button on the Encryption tab."
-        elif selection == "What is an encryption key?":
-            answer = "An encryption key is a sequence of characters used to encrypt and decrypt files. It is important to keep your key secure and not share it with anyone else."
-        elif selection == "Is there a limit on the file size?":
-            answer = "There is no limit on the size of files you can encrypt or decrypt, but larger files may take longer to process."
-        elif selection == "How do I know if a file in encrypted?":
-            answer = "If you try to open an encrypted file without the key, it will appear as gibberish."
-        else:
-            answer = ""
+        answer = self.questions.get(selection, "")
         
-        self.help_answer.insert(END, answer)
+        self.help_answer_heading = Label(self.help_answer_frame, text=selection, font=("Helvetica", 14, "bold"), pady=10)
+        self.help_answer_heading.pack()
+        
+        self.help_answer_text = Label(self.help_answer_frame, text=answer, font=("Helvetica", 12), justify="left", wraplength=400)
+        self.help_answer_text.pack() 
         
     #Progress bar
     def show_progress_bar(self):
@@ -204,6 +208,11 @@ class App:
     def decrypt(self):
         if self.filenames:
             decrypt_file(self, self.filenames)
+            
+            
+    def on_exit(self):
+        if messagebox.askyesno("Export Key","Have you exported your encryption key?"):
+            self.master.destroy()
             
         
 #Root window

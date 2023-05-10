@@ -16,7 +16,6 @@ def encrypt_file(self, filenames):
         if self.key is None:
             messagebox.showerror("Error", "Please generate a key.")
             return
-        print(self.filenames)
         if not filenames:
             messagebox.showerror("Error", "Please one or more files.")
             return
@@ -26,7 +25,7 @@ def encrypt_file(self, filenames):
         self.show_progress_bar()
         self.progress_bar["value"] = 0
         self.progress_bar.update()
-        for idx,filename in enumerate(self.filenames):
+        for idx, filename in enumerate(self.filenames):
             if not os.path.isfile(filename):
                 messagebox.showerror("Error", f"{filename} does not exist.")
                 continue
@@ -61,18 +60,15 @@ def decrypt_file(self, filenames):
             return
         
         cipher_suite = Fernet(self.key)
-    
-        self.show_progress_bar()
-        self.progress_bar["value"] = 0
-        self.progress_bar.update()
+
         for idx,filename in enumerate(self.filenames):
             if not os.path.isfile(filename):
-                messagebox.showerror("Error", f"{filename} does not exist")
+                messagebox.showerror("Error", f"{filenames} does not exist")
                 continue
             with open(filename, "rb") as f:
                 signature = f.read(len(ENCRYPTED_FILE_SIGNATURE))
                 if signature != ENCRYPTED_FILE_SIGNATURE:
-                    messagebox.showerror("Error", f"{filename} is not encrypted")
+                    messagebox.showerror("Error", f"{filenames} is not encrypted")
                     continue
             
             # Decrypt the file using the key
