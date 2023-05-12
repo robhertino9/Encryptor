@@ -6,18 +6,16 @@ import os
 import random
 import time
 
-def __init__(self):
+def __init__(self, app_instance):
     self.key = None
     self.filenames = None
+    self.app = app_instance
 
 def encrypt_file(self, filenames):
         ENCRYPTED_FILE_SIGNATURE = b"ENCRYPTED:" 
         #Error Handling
         if self.key is None:
             messagebox.showerror("Error", "Please generate a key.")
-            return
-        if not filenames:
-            messagebox.showerror("Error", "Please one or more files.")
             return
         
         cipher_suite = Fernet(self.key)
@@ -54,9 +52,7 @@ def decrypt_file(self, filenames):
         ENCRYPTED_FILE_SIGNATURE = b"ENCRYPTED:" 
         #Error Handling
         if self.key is None:
-            messagebox.showerror("Error", "Please generate a key.")
-        if not self.filenames:
-            messagebox.showerror("Error", "Please one or more files.")
+            messagebox.showerror("Error", "Please generate or import a key.")
             return
         
         cipher_suite = Fernet(self.key)

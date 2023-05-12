@@ -17,6 +17,7 @@ class App:
         self.master = master
         self.master.protocol("WM_DELETE_WINDOW", self.on_exit)
         master.title("SafeCryption")
+        
         #Notebook widget for tabs
         self.notebook = ttk.Notebook(master)
         self.notebook.pack(fill="both", expand=True)
@@ -26,6 +27,7 @@ class App:
         #SplashScreen to show logo before the app displays
         self.splash_screen = SplashScreen(master)
         self.master.after(5000, self.show_main_app)
+        
         #SplashScreen attributes
     def show_main_app(self):
         self.splash_screen.close_splash_screen()
@@ -198,16 +200,23 @@ class App:
     def select_file(self):
         # Show a file selection dialog
         self.filenames = filedialog.askopenfilenames()
+        if self.filenames:
+            file_names = "\n".join(self.filenames)
+            messagebox.showinfo("Success", f"Selected file(s):\n{file_names}")
     
     #Encryption
     def encrypt(self):
         if self.filenames:
             encrypt_file(self, self.filenames)
+        if not self.filenames:
+            messagebox.showerror("Error", "Please select one or more files!")
 
     #Decryption
     def decrypt(self):
         if self.filenames:
             decrypt_file(self, self.filenames)
+        if not self.filenames:
+            messagebox.showerror("Error", "Please select one or more files!")
             
             
     def on_exit(self):
