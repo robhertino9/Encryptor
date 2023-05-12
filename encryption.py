@@ -56,7 +56,10 @@ def decrypt_file(self, filenames):
             return
         
         cipher_suite = Fernet(self.key)
-
+        
+        self.show_progress_bar()
+        self.progress_bar["value"] = 0
+        self.progress_bar.update()
         for idx,filename in enumerate(self.filenames):
             if not os.path.isfile(filename):
                 messagebox.showerror("Error", f"{filenames} does not exist")
@@ -79,9 +82,10 @@ def decrypt_file(self, filenames):
                 f.flush()
                 os.fsync(f.fileno())
                 #Progress bar
-                for i in range(1, 101):
-                    self.progress_bar["value"] = i
-                    self.progress_bar.update()
-                    time.sleep(random.uniform(0.01, 0.05))
-                messagebox.showinfo("Success", "File has been decrypted and saved!")
+                if signature == ENCRYPTED_FILE_SIGNATURE:
+                    for i in range(1, 101):
+                        self.progress_bar["value"] = i
+                        self.progress_bar.update()
+                        time.sleep(random.uniform(0.01, 0.05))
+                    messagebox.showinfo("Success", "File has been decrypted and saved!")                
             self.hide_progress_bar()
