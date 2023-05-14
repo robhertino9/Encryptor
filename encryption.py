@@ -18,7 +18,7 @@ def encrypt_file(self, filenames):
             messagebox.showerror("Error", "Please generate a key.")
             return
         
-        cipher_suite = Fernet(self.key)
+        cipher_suite = Fernet(self.key) #Takes in 32-byte encryption key set's it to self.key
         
         self.show_progress_bar()
         self.progress_bar["value"] = 0
@@ -38,7 +38,7 @@ def encrypt_file(self, filenames):
             with open(filename, "wb") as f:
                 f.write(encrypted_text)
                 f.flush()
-                os.fsync(f.fileno())
+                os.fsync(f.fileno()) 
                 #Progress bar
                 self.progress_bar.lift()
                 for i in range (1, 101):

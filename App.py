@@ -21,6 +21,8 @@ class App:
         #Notebook widget for tabs
         self.notebook = ttk.Notebook(master)
         self.notebook.pack(fill="both", expand=True)
+        
+        #Initialize key and filenames
         self.key = None
         self.filenames = []
         
@@ -104,7 +106,7 @@ class App:
         self.file_label.pack(pady=10)
         self.file_select_button = Button(self.encryption_tab, text="Select File", command=self.select_file, font=("Helvetica", 10, "bold"), width=160, image=self.select_photo, compound="top")
         self.file_select_button.pack(pady=5)
-        self.encrypt_button = Button(self.encryption_tab, text="Encrypt File", command=self.encrypt, font=("Helvetica", 12, "bold"),width=160, image=self.encrypt_photo, compound="top")
+        self.encrypt_button = Button(self.encryption_tab, text="Encrypt File", command=self.encrypt, font=("Helvetica", 10, "bold"),width=160, image=self.encrypt_photo, compound="top")
         self.encrypt_button.pack(pady=5)
         
         # Initialization of the encryption key/file variable
@@ -122,11 +124,11 @@ class App:
         self.decrypt_key_button.pack(pady=5)
         
         #Decryption file selection label and buttons
-        self.decrypt_file_label = Label(self.decryption_tab, text="Encrypted File", font=("Helvetica", 16), background='#ADD8E6')
+        self.decrypt_file_label = Label(self.decryption_tab, text="Encrypted File", font=("Helvetica", 16, "bold"), background='#ADD8E6')
         self.decrypt_file_label.pack(pady=10)
         self.decrypt_file_select_button = Button(self.decryption_tab, text="Select Encrypted File", command=self.select_file, font=("Helvetica", 10, "bold"), width=160, image=self.select_photo, compound="top")
         self.decrypt_file_select_button.pack(pady=5)
-        self.decrypt_button = Button(self.decryption_tab, text="Decrypt File", command=self.decrypt, font=("Helvetica", 12, "bold"),width=160 , image=self.decryption_photo, compound="top")
+        self.decrypt_button = Button(self.decryption_tab, text="Decrypt File", command=self.decrypt, font=("Helvetica", 10, "bold"),width=160 , image=self.decryption_photo, compound="top")
         self.decrypt_button.pack(pady=5)
         
         # Initialization of the decryption key/file variable
